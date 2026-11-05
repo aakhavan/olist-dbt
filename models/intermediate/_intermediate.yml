@@ -1,0 +1,84 @@
+version: 2
+models:
+- name: int_orders
+  description: 'Grain: one row per order, retaining every status and all orders, including
+    orders without items. LEFT JOIN stg_orders o to stg_customers c ON o.customer_id
+    = c.customer_id. Select order fields from o and customer_key from c. Customer
+    key uniqueness prevents fanout; no aggregation or deduplication required. Test
+    order_id unique and not null.'
+  config:
+    meta:
+      primary_key:
+      - order_id
+  columns:
+  - name: order_id
+    description: ''
+    data_tests:
+    - unique
+    - not_null
+  - name: customer_key
+    description: ''
+    config:
+      meta:
+        pii: true
+  - name: order_status
+    description: ''
+  - name: purchased_at
+    description: ''
+  - name: delivered_at
+    description: ''
+  - name: estimated_at
+    description: ''
+- name: int_order_lines
+  description: 'Grain: one row per original order item, keyed by (order_id, order_item_id).
+    LEFT JOIN stg_order_items i to int_orders o ON i.order_id = o.order_id; select
+    item fields from i and status, purchase timestamp, and person-level customer_key
+    from o. Do not join payments or reviews, aggregate, filter statuses, or fabricate
+    items for itemless orders. Test composite primary key unique and both components
+    not null.'
+  config:
+    meta:
+      primary_key:
+      - order_id
+      - order_item_id
+  columns:
+  - name: order_id
+    description: ''
+  - name: order_item_id
+    description: ''
+  - name: item_price
+    description: ''
+  - name: freight
+    description: ''
+  - name: order_status
+    description: ''
+  - name: purchased_at
+    description: ''
+  - name: customer_key
+    description: ''
+    config:
+      meta:
+        pii: true
+- name: int_order_reviews
+  description: 'Grain: one latest review per reviewed order. Rank stg_reviews by ROW_NUMBER()
+    OVER (PARTITION BY order_id ORDER BY answered_at DESC NULLS LAST, review_id DESC),
+    retain rank 1, then LEFT JOIN stg_orders on order_id for purchased_at. Return
+    only reviewed orders; do not fabricate reviews. Test order_id unique and not null.'
+  config:
+    meta:
+      primary_key:
+      - order_id
+  columns:
+  - name: order_id
+    description: ''
+    data_tests:
+    - unique
+    - not_null
+  - name: review_id
+    description: ''
+  - name: review_score
+    description: ''
+  - name: answered_at
+    description: ''
+  - name: purchased_at
+    description: ''

@@ -1,0 +1,47 @@
+version: 2
+models:
+- name: kpi_gmv
+  description: 'Item price plus freight of valid orders, by purchase month. Valid means the order counts as a sale (for Olist: not canceled or unavailable).'
+  config:
+    meta:
+      kpi_id: gmv
+      owner: Amir Akhavan (analytics)
+      source_tier: platform
+      source_ref: https://www.sec.gov/Archives/edgar/data/1594805/000159480526000007/shop-20251231.htm
+      template_sha256: abd73b871b2783943779da68176196b83e7f374c1ab7f28615f4f7ac2cbb1c69
+      rendered_sha256: 984f37ebef4ce799866f0052b5335ebd57faa864a9cc5d91694b76bf71a38265
+  columns:
+  - name: month
+    description: the month (grain)
+    data_tests:
+    - not_null
+- name: kpi_net_revenue
+  description: Item price, without freight, of delivered orders by purchase month. Olist has no discount, return or tax data, so the deductions reduce to the delivered-status filter.
+  config:
+    meta:
+      kpi_id: net_revenue
+      owner: Amir Akhavan (analytics)
+      source_tier: accounting
+      source_ref: https://www.ifrs.org/content/dam/ifrs/meetings/2014/july/trg-rev/rev-rec/ap2-gross-net-amounts-billed.pdf
+      template_sha256: 675fb68019921bc9ab80cccff5c52742d80baa8fa587feff2ddff67ce672b609
+      rendered_sha256: 6e172be725bf3b4bbd48dfb6b2cd0c9cf7e0e36d7b49708335c10ecfad14c33f
+  columns:
+  - name: month
+    description: the month (grain)
+    data_tests:
+    - not_null
+- name: kpi_aov
+  description: Item price of valid orders divided by the number of distinct valid orders, by purchase month. Freight excluded.
+  config:
+    meta:
+      kpi_id: aov
+      owner: Amir Akhavan (analytics)
+      source_tier: platform
+      source_ref: https://changelog.shopify.com/posts/your-average-order-value-now-has-a-new-definition-in-shopify
+      template_sha256: a532a6ecc752c52fb8fd95a194e56f5dea3484308e352afd8b42a2b83de37857
+      rendered_sha256: 6c240ad4642889e04991a45a117d3a3234e8200e9d9a869ed3984a76386921b8
+  columns:
+  - name: month
+    description: the month (grain)
+    data_tests:
+    - not_null

@@ -1,0 +1,83 @@
+version: 2
+models:
+- name: stg_customers
+  description: One row per per-order customer_id; retain the person-level identity
+    for customer analytics. Test primary key unique and not null.
+  config:
+    meta:
+      primary_key:
+      - customer_id
+  columns:
+  - name: customer_id
+    description: ''
+    config:
+      meta:
+        pii: true
+    data_tests:
+    - unique
+    - not_null
+  - name: customer_key
+    description: ''
+    config:
+      meta:
+        pii: true
+- name: stg_orders
+  description: One row per order, without status filtering. Test primary key unique
+    and not null.
+  config:
+    meta:
+      primary_key:
+      - order_id
+  columns:
+  - name: order_id
+    description: ''
+    data_tests:
+    - unique
+    - not_null
+  - name: customer_id
+    description: ''
+    config:
+      meta:
+        pii: true
+  - name: order_status
+    description: ''
+  - name: purchased_at
+    description: ''
+  - name: delivered_at
+    description: ''
+  - name: estimated_at
+    description: ''
+- name: stg_order_items
+  description: One row per original order item; retain all items without aggregation.
+    Test the composite primary key unique and each component not null.
+  config:
+    meta:
+      primary_key:
+      - order_id
+      - order_item_id
+  columns:
+  - name: order_id
+    description: ''
+  - name: order_item_id
+    description: ''
+  - name: item_price
+    description: ''
+  - name: freight
+    description: ''
+- name: stg_reviews
+  description: One row per (review_id, order_id), preserving all original reviews;
+    omit free-text PII. Test composite primary key unique and each component not null.
+  config:
+    meta:
+      primary_key:
+      - review_id
+      - order_id
+  columns:
+  - name: review_id
+    description: ''
+  - name: order_id
+    description: ''
+  - name: review_score
+    description: ''
+  - name: answered_at
+    description: ''

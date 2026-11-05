@@ -1,0 +1,476 @@
+{
+  "silver_models": [
+    {
+      "name": "stg_customers",
+      "folder": "staging",
+      "source_table": "olist_customers_dataset",
+      "refs": [],
+      "description": "One row per per-order customer_id; retain the person-level identity for customer analytics. Test primary key unique and not null.",
+      "primary_key": [
+        "customer_id"
+      ],
+      "columns": [
+        {
+          "name": "customer_id",
+          "expr": "NULLIF(TRIM(customer_id), '')",
+          "type": "text",
+          "pii": true,
+          "description": ""
+        },
+        {
+          "name": "customer_key",
+          "expr": "NULLIF(TRIM(customer_unique_id), '')",
+          "type": "text",
+          "pii": true,
+          "description": ""
+        }
+      ]
+    },
+    {
+      "name": "stg_orders",
+      "folder": "staging",
+      "source_table": "olist_orders_dataset",
+      "refs": [],
+      "description": "One row per order, without status filtering. Test primary key unique and not null.",
+      "primary_key": [
+        "order_id"
+      ],
+      "columns": [
+        {
+          "name": "order_id",
+          "expr": "NULLIF(TRIM(order_id), '')",
+          "type": "text",
+          "pii": false,
+          "description": ""
+        },
+        {
+          "name": "customer_id",
+          "expr": "NULLIF(TRIM(customer_id), '')",
+          "type": "text",
+          "pii": true,
+          "description": ""
+        },
+        {
+          "name": "order_status",
+          "expr": "LOWER(NULLIF(TRIM(order_status), ''))",
+          "type": "text",
+          "pii": false,
+          "description": ""
+        },
+        {
+          "name": "purchased_at",
+          "expr": "CAST(NULLIF(TRIM(order_purchase_timestamp), '') AS timestamp)",
+          "type": "timestamp",
+          "pii": false,
+          "description": ""
+        },
+        {
+          "name": "delivered_at",
+          "expr": "CAST(NULLIF(TRIM(order_delivered_customer_date), '') AS timestamp)",
+          "type": "timestamp",
+          "pii": false,
+          "description": ""
+        },
+        {
+          "name": "estimated_at",
+          "expr": "CAST(NULLIF(TRIM(order_estimated_delivery_date), '') AS timestamp)",
+          "type": "timestamp",
+          "pii": false,
+          "description": ""
+        }
+      ]
+    },
+    {
+      "name": "stg_order_items",
+      "folder": "staging",
+      "source_table": "olist_order_items_dataset",
+      "refs": [],
+      "description": "One row per original order item; retain all items without aggregation. Test the composite primary key unique and each component not null.",
+      "primary_key": [
+        "order_id",
+        "order_item_id"
+      ],
+      "columns": [
+        {
+          "name": "order_id",
+          "expr": "NULLIF(TRIM(order_id), '')",
+          "type": "text",
+          "pii": false,
+          "description": ""
+        },
+        {
+          "name": "order_item_id",
+          "expr": "CAST(NULLIF(TRIM(order_item_id), '') AS integer)",
+          "type": "integer",
+          "pii": false,
+          "description": ""
+        },
+        {
+          "name": "item_price",
+          "expr": "CAST(NULLIF(TRIM(price), '') AS numeric)",
+          "type": "numeric",
+          "pii": false,
+          "description": ""
+        },
+        {
+          "name": "freight",
+          "expr": "CAST(NULLIF(TRIM(freight_value), '') AS numeric)",
+          "type": "numeric",
+          "pii": false,
+          "description": ""
+        }
+      ]
+    },
+    {
+      "name": "stg_reviews",
+      "folder": "staging",
+      "source_table": "olist_order_reviews_dataset",
+      "refs": [],
+      "description": "One row per (review_id, order_id), preserving all original reviews; omit free-text PII. Test composite primary key unique and each component not null.",
+      "primary_key": [
+        "review_id",
+        "order_id"
+      ],
+      "columns": [
+        {
+          "name": "review_id",
+          "expr": "NULLIF(TRIM(review_id), '')",
+          "type": "text",
+          "pii": false,
+          "description": ""
+        },
+        {
+          "name": "order_id",
+          "expr": "NULLIF(TRIM(order_id), '')",
+          "type": "text",
+          "pii": false,
+          "description": ""
+        },
+        {
+          "name": "review_score",
+          "expr": "CAST(NULLIF(TRIM(review_score), '') AS integer)",
+          "type": "integer",
+          "pii": false,
+          "description": ""
+        },
+        {
+          "name": "answered_at",
+          "expr": "CAST(NULLIF(TRIM(review_answer_timestamp), '') AS timestamp)",
+          "type": "timestamp",
+          "pii": false,
+          "description": ""
+        }
+      ]
+    },
+    {
+      "name": "int_orders",
+      "folder": "intermediate",
+      "source_table": null,
+      "refs": [
+        "stg_orders",
+        "stg_customers"
+      ],
+      "description": "Grain: one row per order, retaining every status and all orders, including orders without items. LEFT JOIN stg_orders o to stg_customers c ON o.customer_id = c.customer_id. Select order fields from o and customer_key from c. Customer key uniqueness prevents fanout; no aggregation or deduplication required. Test order_id unique and not null.",
+      "primary_key": [
+        "order_id"
+      ],
+      "columns": [
+        {
+          "name": "order_id",
+          "expr": null,
+          "type": "text",
+          "pii": false,
+          "description": ""
+        },
+        {
+          "name": "customer_key",
+          "expr": null,
+          "type": "text",
+          "pii": true,
+          "description": ""
+        },
+        {
+          "name": "order_status",
+          "expr": null,
+          "type": "text",
+          "pii": false,
+          "description": ""
+        },
+        {
+          "name": "purchased_at",
+          "expr": null,
+          "type": "timestamp",
+          "pii": false,
+          "description": ""
+        },
+        {
+          "name": "delivered_at",
+          "expr": null,
+          "type": "timestamp",
+          "pii": false,
+          "description": ""
+        },
+        {
+          "name": "estimated_at",
+          "expr": null,
+          "type": "timestamp",
+          "pii": false,
+          "description": ""
+        }
+      ]
+    },
+    {
+      "name": "int_order_lines",
+      "folder": "intermediate",
+      "source_table": null,
+      "refs": [
+        "stg_order_items",
+        "int_orders"
+      ],
+      "description": "Grain: one row per original order item, keyed by (order_id, order_item_id). LEFT JOIN stg_order_items i to int_orders o ON i.order_id = o.order_id; select item fields from i and status, purchase timestamp, and person-level customer_key from o. Do not join payments or reviews, aggregate, filter statuses, or fabricate items for itemless orders. Test composite primary key unique and both components not null.",
+      "primary_key": [
+        "order_id",
+        "order_item_id"
+      ],
+      "columns": [
+        {
+          "name": "order_id",
+          "expr": null,
+          "type": "text",
+          "pii": false,
+          "description": ""
+        },
+        {
+          "name": "order_item_id",
+          "expr": null,
+          "type": "integer",
+          "pii": false,
+          "description": ""
+        },
+        {
+          "name": "item_price",
+          "expr": null,
+          "type": "numeric",
+          "pii": false,
+          "description": ""
+        },
+        {
+          "name": "freight",
+          "expr": null,
+          "type": "numeric",
+          "pii": false,
+          "description": ""
+        },
+        {
+          "name": "order_status",
+          "expr": null,
+          "type": "text",
+          "pii": false,
+          "description": ""
+        },
+        {
+          "name": "purchased_at",
+          "expr": null,
+          "type": "timestamp",
+          "pii": false,
+          "description": ""
+        },
+        {
+          "name": "customer_key",
+          "expr": null,
+          "type": "text",
+          "pii": true,
+          "description": ""
+        }
+      ]
+    },
+    {
+      "name": "int_order_reviews",
+      "folder": "intermediate",
+      "source_table": null,
+      "refs": [
+        "stg_reviews",
+        "stg_orders"
+      ],
+      "description": "Grain: one latest review per reviewed order. Rank stg_reviews by ROW_NUMBER() OVER (PARTITION BY order_id ORDER BY answered_at DESC NULLS LAST, review_id DESC), retain rank 1, then LEFT JOIN stg_orders on order_id for purchased_at. Return only reviewed orders; do not fabricate reviews. Test order_id unique and not null.",
+      "primary_key": [
+        "order_id"
+      ],
+      "columns": [
+        {
+          "name": "order_id",
+          "expr": null,
+          "type": "text",
+          "pii": false,
+          "description": ""
+        },
+        {
+          "name": "review_id",
+          "expr": null,
+          "type": "text",
+          "pii": false,
+          "description": ""
+        },
+        {
+          "name": "review_score",
+          "expr": null,
+          "type": "integer",
+          "pii": false,
+          "description": ""
+        },
+        {
+          "name": "answered_at",
+          "expr": null,
+          "type": "timestamp",
+          "pii": false,
+          "description": ""
+        },
+        {
+          "name": "purchased_at",
+          "expr": null,
+          "type": "timestamp",
+          "pii": false,
+          "description": ""
+        }
+      ]
+    }
+  ],
+  "kpis": [
+    {
+      "id": "gmv",
+      "decision": "build",
+      "domain": "sales",
+      "mapping": {
+        "order_lines": "int_order_lines",
+        "purchased_at": "purchased_at",
+        "item_price": "item_price",
+        "freight": "freight",
+        "valid_order": "order_status NOT IN ('canceled', 'unavailable')"
+      }
+    },
+    {
+      "id": "net_revenue",
+      "decision": "build",
+      "domain": "sales",
+      "mapping": {
+        "order_lines": "int_order_lines",
+        "purchased_at": "purchased_at",
+        "item_price": "item_price",
+        "delivered_order": "order_status = 'delivered'"
+      }
+    },
+    {
+      "id": "aov",
+      "decision": "build",
+      "domain": "sales",
+      "mapping": {
+        "order_lines": "int_order_lines",
+        "order_id": "order_id",
+        "purchased_at": "purchased_at",
+        "item_price": "item_price",
+        "valid_order": "order_status NOT IN ('canceled', 'unavailable')"
+      }
+    },
+    {
+      "id": "on_time_delivery_rate",
+      "decision": "build",
+      "domain": "delivery",
+      "mapping": {
+        "orders": "int_orders",
+        "purchased_at": "purchased_at",
+        "delivered_at": "delivered_at",
+        "estimated_at": "estimated_at",
+        "delivered_order": "order_status = 'delivered'"
+      }
+    },
+    {
+      "id": "avg_review_score",
+      "decision": "build",
+      "domain": "customers",
+      "mapping": {
+        "order_reviews": "int_order_reviews",
+        "purchased_at": "purchased_at",
+        "review_score": "review_score"
+      }
+    },
+    {
+      "id": "repeat_purchase_rate",
+      "decision": "build",
+      "domain": "customers",
+      "mapping": {
+        "orders": "int_orders",
+        "order_id": "order_id",
+        "customer_key": "customer_key",
+        "valid_order": "order_status NOT IN ('canceled', 'unavailable')"
+      }
+    },
+    {
+      "id": "cohort_retention",
+      "decision": "build",
+      "domain": "customers",
+      "mapping": {
+        "orders": "int_orders",
+        "customer_key": "customer_key",
+        "purchased_at": "purchased_at",
+        "valid_order": "order_status NOT IN ('canceled', 'unavailable')"
+      }
+    },
+    {
+      "id": "historical_clv",
+      "decision": "build",
+      "domain": "customers",
+      "mapping": {
+        "order_lines": "int_order_lines",
+        "customer_key": "customer_key",
+        "purchased_at": "purchased_at",
+        "item_price": "item_price",
+        "valid_order": "order_status NOT IN ('canceled', 'unavailable')",
+        "delivered_order": "order_status = 'delivered'"
+      }
+    },
+    {
+      "id": "conversion_rate",
+      "decision": "decline",
+      "reason": "No session or visit records exist; orders alone cannot supply the session denominator or attribute purchases to sessions.",
+      "gap": {
+        "missing": [
+          "Session identifier and session start timestamp",
+          "Purchase conversion flag or order-to-session attribution"
+        ],
+        "typical_sources": [
+          "Web or app analytics event exports",
+          "First-party session tracking"
+        ],
+        "next_step": "Load a session-grain dataset with session start time and a purchase conversion indicator, or events and order attribution sufficient to derive it."
+      }
+    },
+    {
+      "id": "gross_margin",
+      "decision": "decline",
+      "reason": "Item prices and freight are available, but no product unit cost or cost-of-goods-sold data is present. Sale price and freight are not substitutes for cost.",
+      "gap": {
+        "missing": [
+          "Product-keyed unit cost in the sales currency"
+        ],
+        "typical_sources": [
+          "ERP product costing",
+          "Inventory valuation or purchasing system"
+        ],
+        "next_step": "Load product unit costs keyed by product_id, with currency and effective dates if costs vary; retain product_id from raw order items in silver and join the appropriate costs."
+      }
+    }
+  ],
+  "assumptions": [
+    "Valid sales are orders whose normalized status is neither 'canceled' nor 'unavailable'; delivered means status exactly 'delivered'. No payment-based qualification is added.",
+    "customer_unique_id identifies a person across orders; customer_id is only the order-specific customer reference. Person identifiers remain tagged PII in silver and are used internally for aggregation only, never exposed in gold outputs.",
+    "Profile candidate business keys are trusted; unexpected duplicate or null primary keys fail tests rather than being silently discarded. Composite keys receive combination-uniqueness and component-not-null tests.",
+    "Latest review means greatest review_answer_timestamp per order; ties use descending review_id deterministically. All original reviews remain in staging.",
+    "Source timestamps are treated as timezone-unspecified timestamps with no timezone conversion; empty strings become null. Prices and freight are numeric values assumed to share one source currency.",
+    "Delivery timeliness uses calendar-day comparison and excludes delivered orders missing either delivery date from the denominator, as required by the catalogue.",
+    "Net revenue and historical CLV are revenue-based, exclude freight, and use delivered item prices without inventing discounts, refunds, taxes, or costs.",
+    "Item-based catalogue metrics operate on observed order items; itemless orders remain in int_orders for order-level metrics. Historical CLV's single item-grain template can identify first valid purchases only among orders with items; using it assumes each customer's first valid order is represented in order items. Validate this condition before approval; otherwise the CLV template needs an additional order-grain input.",
+    "Retention cohorts use the first observed valid order in the available dataset, not necessarily the customer's lifetime first order. The catalogue's last-observed-month incomplete flag is retained; no completeness beyond the observation period is assumed.",
+    "Only raw tables needed by buildable KPIs are staged; selected orders, customers, items, and reviews retain nonaggregated records. Unused PII, payments, products, sellers, translations, and geolocation are omitted.",
+    "Gold outputs contain aggregates only, with owners assigned by the selected sales, delivery, and customers domains and descriptions taken from the catalogue."
+  ]
+}
