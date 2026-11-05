@@ -1,0 +1,12 @@
+name: olist
+version: 1.0.0
+config-version: 2
+profile: governor
+model-paths:
+- models
+test-paths:
+- tests
+models:
+  olist:
+    marts:
+      +materialized: table

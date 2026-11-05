@@ -1,0 +1,12 @@
+governor:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: "{{ env_var('GOVERNOR_PG_HOST', 'localhost') }}"
+      port: "{{ env_var('GOVERNOR_PG_PORT', '55432') | as_number }}"
+      dbname: "{{ env_var('GOVERNOR_PG_DB', 'shop') }}"
+      user: "{{ env_var('GOVERNOR_BUILD_USER', 'governor_build') }}"
+      password: "{{ env_var('GOVERNOR_BUILD_PASSWORD') }}"
+      schema: dev_governor
+      threads: 4
