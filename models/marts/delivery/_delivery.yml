@@ -1,0 +1,17 @@
+version: 2
+models:
+- name: kpi_on_time_delivery_rate
+  description: Delivered orders whose delivery date is on or before the estimated delivery date (compared by day), divided by delivered orders that have both dates, by purchase month.
+  config:
+    meta:
+      kpi_id: on_time_delivery_rate
+      owner: Amir Akhavan (operations)
+      source_tier: platform
+      source_ref: https://marketplacelearn.walmart.com/guides/Policies%20&%20standards/Performance/Seller-performance-standards
+      template_sha256: 03dbd3d45e037590f44fe85b5c7251cf09d5204297cd4f8552f35b699758916c
+      rendered_sha256: d2bf4234e3b3c0fb743df8a95e41d16e9874783a1b32b0934a1e6212acb6ad62
+  columns:
+  - name: month
+    description: the month (grain)
+    data_tests:
+    - not_null
