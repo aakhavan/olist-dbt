@@ -10,3 +10,12 @@ governor:
       password: "{{ env_var('GOVERNOR_BUILD_PASSWORD') }}"
       schema: dev_governor
       threads: 4
+    prod:
+      type: postgres
+      host: "{{ env_var('GOVERNOR_PG_HOST', 'localhost') }}"
+      port: "{{ env_var('GOVERNOR_PG_PORT', '55432') | as_number }}"
+      dbname: "{{ env_var('GOVERNOR_PG_DB', 'shop') }}"
+      user: "{{ env_var('GOVERNOR_DEPLOY_USER', 'governor_deploy') }}"
+      password: "{{ env_var('GOVERNOR_DEPLOY_PASSWORD') }}"
+      schema: analytics
+      threads: 4
