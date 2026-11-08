@@ -12,6 +12,8 @@ models:
       rendered_sha256: d2bf4234e3b3c0fb743df8a95e41d16e9874783a1b32b0934a1e6212acb6ad62
   columns:
   - name: month
-    description: the month (grain)
+    description: The month (grain of On-time delivery rate).
     data_tests:
     - not_null
+  - name: on_time_delivery_rate
+    description: 'On-time delivery rate per month: Delivered orders whose delivery date is on or before the estimated delivery date (compared by day), divided by delivered orders that have both dates, by purchase month.'

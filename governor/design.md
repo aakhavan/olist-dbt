@@ -1,20 +1,24 @@
 # Design report
 
-7 silver model(s), 8 KPI(s) to build, 2 KPI(s) declined.
+11 silver model(s), 8 KPI(s) to build, 2 KPI(s) declined.
 
-Thread: `bf5dc274-8dad-4a62-9795-952dd2584fc4`
+Thread: `189ba982-d3e8-43a0-aa43-e854363f9986`
 
 ## Silver models
 
 | name | folder | from | key | PII columns |
 |---|---|---|---|---|
-| stg_customers | staging | raw.olist_customers_dataset | customer_id | customer_id, customer_key |
+| stg_customers | staging | raw.olist_customers_dataset | customer_id | customer_id, customer_unique_id, customer_zip_code_prefix, customer_city, customer_state |
 | stg_orders | staging | raw.olist_orders_dataset | order_id | customer_id |
 | stg_order_items | staging | raw.olist_order_items_dataset | order_id, order_item_id | none |
-| stg_reviews | staging | raw.olist_order_reviews_dataset | review_id, order_id | none |
-| int_orders | intermediate | stg_orders, stg_customers | order_id | customer_key |
+| stg_order_payments | staging | raw.olist_order_payments_dataset | order_id, payment_sequential | none |
+| stg_order_reviews | staging | raw.olist_order_reviews_dataset | review_id, order_id | review_comment_title, review_comment_message |
+| stg_products | staging | raw.olist_products_dataset | product_id | none |
+| stg_sellers | staging | raw.olist_sellers_dataset | seller_id | seller_zip_code_prefix, seller_city |
+| stg_product_category_name_translation | staging | raw.product_category_name_translation | product_category_name | none |
+| int_orders | intermediate | stg_orders, stg_customers | order_id | customer_id, customer_key |
 | int_order_lines | intermediate | stg_order_items, int_orders | order_id, order_item_id | customer_key |
-| int_order_reviews | intermediate | stg_reviews, stg_orders | order_id | none |
+| int_order_reviews | intermediate | stg_order_reviews, int_orders | order_id | none |
 
 ## KPIs
 
@@ -28,36 +32,32 @@ Thread: `bf5dc274-8dad-4a62-9795-952dd2584fc4`
 | repeat_purchase_rate | build | customers | orders → int_orders; order_id → order_id; customer_key → customer_key; valid_order → order_status NOT IN ('canceled', 'unavailable') |
 | cohort_retention | build | customers | orders → int_orders; customer_key → customer_key; purchased_at → purchased_at; valid_order → order_status NOT IN ('canceled', 'unavailable') |
 | historical_clv | build | customers | order_lines → int_order_lines; customer_key → customer_key; purchased_at → purchased_at; item_price → item_price; valid_order → order_status NOT IN ('canceled', 'unavailable'); delivered_order → order_status = 'delivered' |
-| conversion_rate | decline |  | No session or visit records exist; orders alone cannot supply the session denominator or attribute purchases to sessions. |
-| gross_margin | decline |  | Item prices and freight are available, but no product unit cost or cost-of-goods-sold data is present. Sale price and freight are not substitutes for cost. |
+| conversion_rate | decline |  | No sessions / web analytics data in the raw profile; cannot compute sessions or session-level conversion. |
+| gross_margin | decline |  | No product cost data (product_costs) is available in the raw profile; cannot compute gross margin without unit cost. |
 
 ## Gap report
 
 ### conversion_rate
 
-- Missing data: Session identifier and session start timestamp, Purchase conversion flag or order-to-session attribution
-- Typical sources: Web or app analytics event exports, First-party session tracking
-- Next step: Load a session-grain dataset with session start time and a purchase conversion indicator, or events and order attribution sufficient to derive it.
+- Missing data: sessions table with one row per site session including session_start timestamp and converted boolean
+- Typical sources: Web analytics (Google Analytics 4, Adobe Analytics), tracking pipeline, cookie/session logs, backend visit events
+- Next step: Load a sessions (or visits) table with a session_start timestamp and a boolean converted flag (or linkable events that allow deriving converted).
 
 ### gross_margin
 
-- Missing data: Product-keyed unit cost in the sales currency
-- Typical sources: ERP product costing, Inventory valuation or purchasing system
-- Next step: Load product unit costs keyed by product_id, with currency and effective dates if costs vary; retain product_id from raw order items in silver and join the appropriate costs.
+- Missing data: product_costs table with product_key and unit_cost
+- Typical sources: ERP, PIM, procurement system, vendor price lists
+- Next step: Load a product_costs table keyed by product_id (or the product_key used in order_lines) with a numeric unit_cost column.
 
 ## Assumptions
 
-- Valid sales are orders whose normalized status is neither 'canceled' nor 'unavailable'; delivered means status exactly 'delivered'. No payment-based qualification is added.
-- customer_unique_id identifies a person across orders; customer_id is only the order-specific customer reference. Person identifiers remain tagged PII in silver and are used internally for aggregation only, never exposed in gold outputs.
-- Profile candidate business keys are trusted; unexpected duplicate or null primary keys fail tests rather than being silently discarded. Composite keys receive combination-uniqueness and component-not-null tests.
-- Latest review means greatest review_answer_timestamp per order; ties use descending review_id deterministically. All original reviews remain in staging.
-- Source timestamps are treated as timezone-unspecified timestamps with no timezone conversion; empty strings become null. Prices and freight are numeric values assumed to share one source currency.
-- Delivery timeliness uses calendar-day comparison and excludes delivered orders missing either delivery date from the denominator, as required by the catalogue.
-- Net revenue and historical CLV are revenue-based, exclude freight, and use delivered item prices without inventing discounts, refunds, taxes, or costs.
-- Item-based catalogue metrics operate on observed order items; itemless orders remain in int_orders for order-level metrics. Historical CLV's single item-grain template can identify first valid purchases only among orders with items; using it assumes each customer's first valid order is represented in order items. Validate this condition before approval; otherwise the CLV template needs an additional order-grain input.
-- Retention cohorts use the first observed valid order in the available dataset, not necessarily the customer's lifetime first order. The catalogue's last-observed-month incomplete flag is retained; no completeness beyond the observation period is assumed.
-- Only raw tables needed by buildable KPIs are staged; selected orders, customers, items, and reviews retain nonaggregated records. Unused PII, payments, products, sellers, translations, and geolocation are omitted.
-- Gold outputs contain aggregates only, with owners assigned by the selected sales, delivery, and customers domains and descriptions taken from the catalogue.
+- Person-level customer key = stg_customers.customer_unique_id and is the canonical 'customer_key' used by customer-facing KPIs.
+- A valid order = order_status NOT IN ('canceled', 'unavailable'). This matches approved mappings.
+- A delivered order = order_status = 'delivered'. This matches approved mappings.
+- int_order_reviews picks the latest review per order by review_answer_timestamp (ties resolved arbitrarily by order in SQL window).
+- int_orders is built by joining stg_orders to stg_customers on customer_id to obtain customer_unique_id; stg_orders.order_id is the order grain.
+- PII columns (customer_id, customer_unique_id, zip/city) are tagged in silver; gold models must mask or exclude them per blueprint rules.
+- Source_table names must match the raw profile table names exactly (e.g. 'olist_orders_dataset'), not schema-qualified strings used previously.
 
 ## Validation findings
 
@@ -68,11 +68,11 @@ None: the proposal passed every check.
 Approve:
 
 ```
-python -m governor.build approve bf5dc274-8dad-4a62-9795-952dd2584fc4 --by <name>
+python -m governor.build approve 189ba982-d3e8-43a0-aa43-e854363f9986 --by <name>
 ```
 
 Reject with a note (the plan model proposes once more):
 
 ```
-python -m governor.build reject bf5dc274-8dad-4a62-9795-952dd2584fc4 --note "<what to change>"
+python -m governor.build reject 189ba982-d3e8-43a0-aa43-e854363f9986 --note "<what to change>"
 ```

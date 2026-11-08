@@ -1,19 +1,24 @@
-# governor: build bf5dc274
+# governor: build 189ba982
 
 ## Summary
 
-governor built this dbt project from the raw schema: 7 silver models, 8 KPIs and 2 gaps. Build thread `bf5dc274-8dad-4a62-9795-952dd2584fc4`, branch `governor/build-bf5dc274`.
+governor built this dbt project from the raw schema: 11 silver models, 8 KPIs and 2 gaps. Build thread `189ba982-d3e8-43a0-aa43-e854363f9986`, branch `governor/build-189ba982`.
 
-- Design approved by: **(not recorded)**
-- dbt tests passed: 18 (silver 11, gold 7)
+- Design approved by: **Amir Akhavan**
+- dbt tests passed: 25 (silver 18, gold 7)
 - SQL repairs: 0
+- Column descriptions: 100% (90 of 90 columns; review them in the yml files)
 
 ## Silver models
 
 - `stg_customers` (staging)
 - `stg_orders` (staging)
 - `stg_order_items` (staging)
-- `stg_reviews` (staging)
+- `stg_order_payments` (staging)
+- `stg_order_reviews` (staging)
+- `stg_products` (staging)
+- `stg_sellers` (staging)
+- `stg_product_category_name_translation` (staging)
 - `int_orders` (intermediate)
 - `int_order_lines` (intermediate)
 - `int_order_reviews` (intermediate)
@@ -33,18 +38,18 @@ governor built this dbt project from the raw schema: 7 silver models, 8 KPIs and
 
 ## Gap report
 
-- **conversion_rate**: No session or visit records exist; orders alone cannot supply the session denominator or attribute purchases to sessions.
-  - missing: Session identifier and session start timestamp, Purchase conversion flag or order-to-session attribution
-  - typical sources: Web or app analytics event exports, First-party session tracking
-  - next step: Load a session-grain dataset with session start time and a purchase conversion indicator, or events and order attribution sufficient to derive it.
-- **gross_margin**: Item prices and freight are available, but no product unit cost or cost-of-goods-sold data is present. Sale price and freight are not substitutes for cost.
-  - missing: Product-keyed unit cost in the sales currency
-  - typical sources: ERP product costing, Inventory valuation or purchasing system
-  - next step: Load product unit costs keyed by product_id, with currency and effective dates if costs vary; retain product_id from raw order items in silver and join the appropriate costs.
+- **conversion_rate**: No sessions / web analytics data in the raw profile; cannot compute sessions or session-level conversion.
+  - missing: sessions table with one row per site session including session_start timestamp and converted boolean
+  - typical sources: Web analytics (Google Analytics 4, Adobe Analytics), tracking pipeline, cookie/session logs, backend visit events
+  - next step: Load a sessions (or visits) table with a session_start timestamp and a boolean converted flag (or linkable events that allow deriving converted).
+- **gross_margin**: No product cost data (product_costs) is available in the raw profile; cannot compute gross margin without unit cost.
+  - missing: product_costs table with product_key and unit_cost
+  - typical sources: ERP, PIM, procurement system, vendor price lists
+  - next step: Load a product_costs table keyed by product_id (or the product_key used in order_lines) with a numeric unit_cost column.
 
 ## Tests
 
-dbt build ran every test in the dev schema: 18 passed (11 silver, 7 gold).
+dbt build ran every test in the dev schema: 25 passed (18 silver, 7 gold).
 
 ## Blueprint findings
 
@@ -52,9 +57,8 @@ No findings.
 
 ## Model cost
 
-4 model calls, cost $0.0480.
-- `openai/gpt-6.1-sol`: 1 calls, 6611 in / 2512 out tokens, $0.0416
-- `openai/gpt-5-mini`: 3 calls, 1759 in / 2983 out tokens, $0.0064
+5 model calls, cost $0.0445.
+- `openai/gpt-5-mini`: 5 calls, 31544 in / 19573 out tokens, $0.0445
 
 ## Reviewer checklist
 

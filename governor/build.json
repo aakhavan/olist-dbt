@@ -1,12 +1,17 @@
 {
   "status": "built",
-  "thread_id": "bf5dc274-8dad-4a62-9795-952dd2584fc4",
+  "thread_id": "189ba982-d3e8-43a0-aa43-e854363f9986",
+  "approved_by": "Amir Akhavan",
   "models": {
     "silver": [
       "stg_customers",
       "stg_orders",
       "stg_order_items",
-      "stg_reviews",
+      "stg_order_payments",
+      "stg_order_reviews",
+      "stg_products",
+      "stg_sellers",
+      "stg_product_category_name_translation",
       "int_orders",
       "int_order_lines",
       "int_order_reviews"
@@ -23,9 +28,9 @@
     ]
   },
   "tests_passed": {
-    "silver": 11,
+    "silver": 18,
     "gold": 7,
-    "total": 18
+    "total": 25
   },
   "kpis_built": [
     {
@@ -80,48 +85,44 @@
   "gaps": [
     {
       "id": "conversion_rate",
-      "reason": "No session or visit records exist; orders alone cannot supply the session denominator or attribute purchases to sessions.",
+      "reason": "No sessions / web analytics data in the raw profile; cannot compute sessions or session-level conversion.",
       "missing": [
-        "Session identifier and session start timestamp",
-        "Purchase conversion flag or order-to-session attribution"
+        "sessions table with one row per site session including session_start timestamp and converted boolean"
       ],
       "typical_sources": [
-        "Web or app analytics event exports",
-        "First-party session tracking"
+        "Web analytics (Google Analytics 4, Adobe Analytics), tracking pipeline, cookie/session logs, backend visit events"
       ],
-      "next_step": "Load a session-grain dataset with session start time and a purchase conversion indicator, or events and order attribution sufficient to derive it."
+      "next_step": "Load a sessions (or visits) table with a session_start timestamp and a boolean converted flag (or linkable events that allow deriving converted)."
     },
     {
       "id": "gross_margin",
-      "reason": "Item prices and freight are available, but no product unit cost or cost-of-goods-sold data is present. Sale price and freight are not substitutes for cost.",
+      "reason": "No product cost data (product_costs) is available in the raw profile; cannot compute gross margin without unit cost.",
       "missing": [
-        "Product-keyed unit cost in the sales currency"
+        "product_costs table with product_key and unit_cost"
       ],
       "typical_sources": [
-        "ERP product costing",
-        "Inventory valuation or purchasing system"
+        "ERP, PIM, procurement system, vendor price lists"
       ],
-      "next_step": "Load product unit costs keyed by product_id, with currency and effective dates if costs vary; retain product_id from raw order items in silver and join the appropriate costs."
+      "next_step": "Load a product_costs table keyed by product_id (or the product_key used in order_lines) with a numeric unit_cost column."
     }
   ],
   "repairs": 0,
   "blueprint": [],
   "cost": {
-    "llm_calls": 4,
-    "cost_usd": 0.047987,
+    "llm_calls": 5,
+    "cost_usd": 0.044469,
     "by_model": {
-      "openai/gpt-6.1-sol": {
-        "calls": 1,
-        "input_tokens": 6611,
-        "output_tokens": 2512,
-        "cost_usd": 0.041582
-      },
       "openai/gpt-5-mini": {
-        "calls": 3,
-        "input_tokens": 1759,
-        "output_tokens": 2983,
-        "cost_usd": 0.006405
+        "calls": 5,
+        "input_tokens": 31544,
+        "output_tokens": 19573,
+        "cost_usd": 0.04447
       }
     }
+  },
+  "docs_coverage": {
+    "columns": 90,
+    "described": 90,
+    "share": 1.0
   }
 }

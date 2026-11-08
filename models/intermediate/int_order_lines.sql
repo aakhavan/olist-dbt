@@ -1,24 +1,13 @@
-WITH joined AS (
-  SELECT
-    i.order_id AS order_id,
-    i.order_item_id AS order_item_id,
-    i.item_price AS item_price,
-    i.freight AS freight,
-    o.order_status AS order_status,
-    o.purchased_at AS purchased_at,
-    o.customer_key AS customer_key,
-    row_number() OVER (PARTITION BY i.order_id, i.order_item_id ORDER BY o.purchased_at DESC NULLS LAST) AS rn
-  FROM {{ ref('stg_order_items') }} i
-  LEFT JOIN {{ ref('int_orders') }} o
-    ON i.order_id = o.order_id
-)
 SELECT
-  order_id,
-  order_item_id,
-  item_price,
-  freight,
-  order_status,
-  purchased_at,
-  customer_key
-FROM joined
-WHERE rn = 1
+  soi.order_id AS order_id,
+  soi.order_item_id AS order_item_id,
+  soi.product_id AS product_id,
+  soi.seller_id AS seller_id,
+  soi.price AS item_price,
+  soi.freight_value AS freight,
+  io.purchased_at AS purchased_at,
+  io.order_status AS order_status,
+  io.customer_key AS customer_key
+FROM {{ ref('stg_order_items') }} AS soi
+LEFT JOIN {{ ref('int_orders') }} AS io
+  ON soi.order_id = io.order_id
