@@ -4,16 +4,16 @@ KPIs from the catalogue that the approved design declines, and the data that wou
 
 ## conversion_rate
 
-Reason: No session or visit records exist; orders alone cannot supply the session denominator or attribute purchases to sessions.
+Reason: No sessions / web analytics data in the raw profile; cannot compute sessions or session-level conversion.
 
-- Missing data: Session identifier and session start timestamp, Purchase conversion flag or order-to-session attribution
-- Typical sources: Web or app analytics event exports, First-party session tracking
-- Next step: Load a session-grain dataset with session start time and a purchase conversion indicator, or events and order attribution sufficient to derive it.
+- Missing data: sessions table with one row per site session including session_start timestamp and converted boolean
+- Typical sources: Web analytics (Google Analytics 4, Adobe Analytics), tracking pipeline, cookie/session logs, backend visit events
+- Next step: Load a sessions (or visits) table with a session_start timestamp and a boolean converted flag (or linkable events that allow deriving converted).
 
 ## gross_margin
 
-Reason: Item prices and freight are available, but no product unit cost or cost-of-goods-sold data is present. Sale price and freight are not substitutes for cost.
+Reason: No product cost data (product_costs) is available in the raw profile; cannot compute gross margin without unit cost.
 
-- Missing data: Product-keyed unit cost in the sales currency
-- Typical sources: ERP product costing, Inventory valuation or purchasing system
-- Next step: Load product unit costs keyed by product_id, with currency and effective dates if costs vary; retain product_id from raw order items in silver and join the appropriate costs.
+- Missing data: product_costs table with product_key and unit_cost
+- Typical sources: ERP, PIM, procurement system, vendor price lists
+- Next step: Load a product_costs table keyed by product_id (or the product_key used in order_lines) with a numeric unit_cost column.

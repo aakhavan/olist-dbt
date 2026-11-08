@@ -1,41 +1,43 @@
 version: 2
 models:
 - name: int_orders
-  description: 'Grain: one row per order, retaining every status and all orders, including
-    orders without items. LEFT JOIN stg_orders o to stg_customers c ON o.customer_id
-    = c.customer_id. Select order fields from o and customer_key from c. Customer
-    key uniqueness prevents fanout; no aggregation or deduplication required. Test
-    order_id unique and not null.'
+  description: 'One row per order. Grain: order_id. Join stg_orders to stg_customers
+    on customer_id to bring the person-level customer key (customer_unique_id). No
+    deduplication needed because stg_orders is keyed by order_id. Columns expose order-level
+    timestamps and status for KPI consumption.'
   config:
     meta:
       primary_key:
       - order_id
   columns:
   - name: order_id
-    description: ''
+    description: order id (primary key)
     data_tests:
     - unique
     - not_null
-  - name: customer_key
-    description: ''
+  - name: customer_id
+    description: per-order customer_id (PII); used only in silver joins
     config:
       meta:
         pii: true
-  - name: order_status
-    description: ''
+  - name: customer_key
+    description: person-level customer key = stg_customers.customer_unique_id
+    config:
+      meta:
+        pii: true
   - name: purchased_at
-    description: ''
+    description: order purchase timestamp (from stg_orders.order_purchase_timestamp)
+  - name: order_status
+    description: order lifecycle status
   - name: delivered_at
-    description: ''
+    description: delivered to customer timestamp (stg_orders.order_delivered_customer_date)
   - name: estimated_at
-    description: ''
+    description: estimated delivery date (stg_orders.order_estimated_delivery_date)
 - name: int_order_lines
-  description: 'Grain: one row per original order item, keyed by (order_id, order_item_id).
-    LEFT JOIN stg_order_items i to int_orders o ON i.order_id = o.order_id; select
-    item fields from i and status, purchase timestamp, and person-level customer_key
-    from o. Do not join payments or reviews, aggregate, filter statuses, or fabricate
-    items for itemless orders. Test composite primary key unique and both components
-    not null.'
+  description: 'One row per order item (grain: order_id, order_item_id). Start from
+    stg_order_items and join to int_orders on order_id to bring order-level fields:
+    purchased_at, order_status and customer_key (person-level). stg_order_items is
+    keyed, so no further deduplication required.'
   config:
     meta:
       primary_key:
@@ -43,42 +45,45 @@ models:
       - order_item_id
   columns:
   - name: order_id
-    description: ''
+    description: order id (FK to int_orders)
   - name: order_item_id
-    description: ''
+    description: item id within order
+  - name: product_id
+    description: product identifier
+  - name: seller_id
+    description: seller identifier
   - name: item_price
-    description: ''
+    description: item price (from stg_order_items.price)
   - name: freight
-    description: ''
-  - name: order_status
-    description: ''
+    description: freight value (from stg_order_items.freight_value)
   - name: purchased_at
-    description: ''
+    description: order purchase timestamp (from int_orders.purchased_at)
+  - name: order_status
+    description: order status (from int_orders.order_status)
   - name: customer_key
-    description: ''
+    description: person-level customer key (from int_orders.customer_key)
     config:
       meta:
         pii: true
 - name: int_order_reviews
-  description: 'Grain: one latest review per reviewed order. Rank stg_reviews by ROW_NUMBER()
-    OVER (PARTITION BY order_id ORDER BY answered_at DESC NULLS LAST, review_id DESC),
-    retain rank 1, then LEFT JOIN stg_orders on order_id for purchased_at. Return
-    only reviewed orders; do not fabricate reviews. Test order_id unique and not null.'
+  description: 'One row per order with its latest review. Grain: order_id. Deduplicate
+    stg_order_reviews by ordering review_answer_timestamp DESC per order_id and keeping
+    the first row (latest answer). Join to int_orders to add purchased_at.'
   config:
     meta:
       primary_key:
       - order_id
   columns:
   - name: order_id
-    description: ''
+    description: order id (primary key)
     data_tests:
     - unique
     - not_null
   - name: review_id
-    description: ''
+    description: review id of the chosen (latest) review for the order
   - name: review_score
-    description: ''
+    description: review score (from stg_order_reviews.review_score)
   - name: answered_at
-    description: ''
+    description: review_answer_timestamp of the chosen review
   - name: purchased_at
-    description: ''
+    description: order purchase timestamp (from int_orders.purchased_at)
