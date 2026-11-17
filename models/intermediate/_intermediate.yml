@@ -1,41 +1,43 @@
 version: 2
 models:
 - name: int_orders
-  description: 'Grain: one row per order, retaining every status and all orders, including
-    orders without items. LEFT JOIN stg_orders o to stg_customers c ON o.customer_id
-    = c.customer_id. Select order fields from o and customer_key from c. Customer
-    key uniqueness prevents fanout; no aggregation or deduplication required. Test
-    order_id unique and not null.'
+  description: 'One row per order. Grain: order_id. Built by left-joining stg_orders
+    to stg_customers on customer_id to surface the person-level customer_unique_id
+    as customer_key. Fields: order_id (PK), purchased_at (from stg_orders.order_purchase_timestamp),
+    order_status, order_approved_at, delivered_at (stg_orders.order_delivered_customer_date),
+    estimated_at (stg_orders.order_estimated_delivery_date), customer_key (stg_customers.customer_unique_id).'
   config:
     meta:
       primary_key:
       - order_id
   columns:
   - name: order_id
-    description: ''
+    description: Order id (grain). Primary key.
     data_tests:
     - unique
     - not_null
+  - name: purchased_at
+    description: Order purchase timestamp (from stg_orders.order_purchase_timestamp).
+  - name: order_status
+    description: Order status (from stg_orders.order_status).
+  - name: order_approved_at
+    description: Order approved timestamp.
+  - name: delivered_at
+    description: Customer-delivered timestamp (from stg_orders.order_delivered_customer_date).
+  - name: estimated_at
+    description: Estimated delivery date (from stg_orders.order_estimated_delivery_date).
   - name: customer_key
-    description: ''
+    description: Person-level customer key (stg_customers.customer_unique_id). Marked
+      PII.
     config:
       meta:
         pii: true
-  - name: order_status
-    description: ''
-  - name: purchased_at
-    description: ''
-  - name: delivered_at
-    description: ''
-  - name: estimated_at
-    description: ''
 - name: int_order_lines
-  description: 'Grain: one row per original order item, keyed by (order_id, order_item_id).
-    LEFT JOIN stg_order_items i to int_orders o ON i.order_id = o.order_id; select
-    item fields from i and status, purchase timestamp, and person-level customer_key
-    from o. Do not join payments or reviews, aggregate, filter statuses, or fabricate
-    items for itemless orders. Test composite primary key unique and both components
-    not null.'
+  description: 'One row per order item (grain: order_id, order_item_id). Built by
+    joining stg_order_items to int_orders on order_id to bring in purchased_at, order_status
+    and customer_key; product fields preserved from stg_products when available. Columns:
+    order_id, order_item_id (PK), product_id, seller_id, purchased_at, order_status,
+    item_price (stg_order_items.price), freight (stg_order_items.freight_value), customer_key.'
   config:
     meta:
       primary_key:
@@ -43,42 +45,49 @@ models:
       - order_item_id
   columns:
   - name: order_id
-    description: ''
+    description: Order id – FK to int_orders.
   - name: order_item_id
-    description: ''
-  - name: item_price
-    description: ''
-  - name: freight
-    description: ''
-  - name: order_status
-    description: ''
+    description: Order item id within order. Part of PK.
+  - name: product_id
+    description: Product id for the item.
+  - name: seller_id
+    description: Seller id for the item.
   - name: purchased_at
-    description: ''
+    description: Order purchase timestamp brought from int_orders.purchased_at.
+  - name: order_status
+    description: Order status brought from int_orders.order_status.
+  - name: item_price
+    description: Item price (from stg_order_items.price).
+  - name: freight
+    description: Freight value for the item (from stg_order_items.freight_value).
   - name: customer_key
-    description: ''
+    description: Person-level customer key carried from int_orders.customer_key. PII
+      flagged.
     config:
       meta:
         pii: true
 - name: int_order_reviews
-  description: 'Grain: one latest review per reviewed order. Rank stg_reviews by ROW_NUMBER()
-    OVER (PARTITION BY order_id ORDER BY answered_at DESC NULLS LAST, review_id DESC),
-    retain rank 1, then LEFT JOIN stg_orders on order_id for purchased_at. Return
-    only reviewed orders; do not fabricate reviews. Test order_id unique and not null.'
+  description: 'One row per order with its latest review. Grain: order_id. Built by
+    taking for each order_id the stg_order_reviews row with the greatest review_answer_timestamp,
+    joining to int_orders to get purchased_at. Columns: order_id (PK), review_score,
+    purchased_at, review_answer_timestamp, review_id.'
   config:
     meta:
       primary_key:
       - order_id
   columns:
   - name: order_id
-    description: ''
+    description: Order id (grain). Primary key.
     data_tests:
     - unique
     - not_null
   - name: review_id
-    description: ''
+    description: Selected review id (the latest by review_answer_timestamp) for this
+      order.
   - name: review_score
-    description: ''
-  - name: answered_at
-    description: ''
+    description: Review score for the selected review.
+  - name: review_answer_timestamp
+    description: Timestamp used to choose the latest review per order.
   - name: purchased_at
-    description: ''
+    description: Order purchase timestamp brought from int_orders for alignment with
+      purchase month.

@@ -12,9 +12,13 @@ models:
       rendered_sha256: 3342b3c95522153f88220eed070aa4c9a9c452244ad7c9c28775ca3efb63e1e5
   columns:
   - name: month
-    description: the month (grain)
+    description: The month (grain of Average review score).
     data_tests:
     - not_null
+  - name: avg_review_score
+    description: 'Average review score per month: Mean review score with one review per order (the latest answer), by purchase month; companion: the share of reviews scoring 2 or less.'
+  - name: low_score_share
+    description: 'Low score share, a companion value of Average review score per month: Mean review score with one review per order (the latest answer), by purchase month; companion: the share of reviews scoring 2 or less.'
 - name: kpi_repeat_purchase_rate
   description: 'Customers with 2 or more valid orders divided by customers with at least 1 valid order, over the whole dataset. Customers are counted by the person-level key (Olist: customer_unique_id), not the per-order id.'
   config:
@@ -25,6 +29,11 @@ models:
       source_ref: https://help.shopify.com/manual/reports-and-analytics/shopify-reports/report-types/customers-reports?r=ecm-bfs
       template_sha256: e9bee6e2bba3c556ae3dbaea4a06a4bb257bb512eed3caea643568e66b982a46
       rendered_sha256: 0790fcc8c26e84961f86fa549c4a1b5f487f3e0e255096b3bf8cd753ca16ce11
+  columns:
+  - name: customers
+    description: 'Customers, a companion value of Repeat purchase rate per total: Customers with 2 or more valid orders divided by customers with at least 1 valid order, over the whole dataset. Customers are counted by the person-level key (Olist: customer_unique_id), not the per-order id.'
+  - name: repeat_purchase_rate
+    description: 'Repeat purchase rate per total: Customers with 2 or more valid orders divided by customers with at least 1 valid order, over the whole dataset. Customers are counted by the person-level key (Olist: customer_unique_id), not the per-order id.'
 - name: kpi_cohort_retention
   description: Cohort = month of a customer's first valid order. Retention in month k = cohort customers with a valid order in the k-th month after the cohort month, divided by cohort size. Cells whose month is the last (incomplete) month of data are flagged.
   config:
@@ -37,9 +46,15 @@ models:
       rendered_sha256: 747b2b6a1340244ca47b402679a0c5bb522f8ad0bc483ee70596275e92853495
   columns:
   - name: cohort_month
-    description: the cohort month (grain)
+    description: The cohort month (grain of Monthly cohort retention).
     data_tests:
     - not_null
+  - name: months_since_first
+    description: 'Months since first, a companion value of Monthly cohort retention per cohort month: Cohort = month of a customer''s first valid order. Retention in month k = cohort customers with a valid order in the k-th month after the cohort month, divided by cohort size. Cells whose month is the last (incomplete) month of data are flagged.'
+  - name: retention
+    description: 'Retention, a companion value of Monthly cohort retention per cohort month: Cohort = month of a customer''s first valid order. Retention in month k = cohort customers with a valid order in the k-th month after the cohort month, divided by cohort size. Cells whose month is the last (incomplete) month of data are flagged.'
+  - name: incomplete_month
+    description: 'Incomplete month, a companion value of Monthly cohort retention per cohort month: Cohort = month of a customer''s first valid order. Retention in month k = cohort customers with a valid order in the k-th month after the cohort month, divided by cohort size. Cells whose month is the last (incomplete) month of data are flagged.'
 - name: kpi_historical_clv
   description: Mean net revenue (item price of delivered orders) per customer within 90, 180 and 365 days of the customer's first valid order, by first-order cohort month. Revenue-based, since there is no cost data.
   config:
@@ -52,6 +67,14 @@ models:
       rendered_sha256: 3047eb11bad9829c5f2b25bf360f5541b1526933a4e4b9294a4ae3d0e9ee0218
   columns:
   - name: cohort_month
-    description: the cohort month (grain)
+    description: The cohort month (grain of Historical customer lifetime value).
     data_tests:
     - not_null
+  - name: customers
+    description: 'Customers, a companion value of Historical customer lifetime value per cohort month: Mean net revenue (item price of delivered orders) per customer within 90, 180 and 365 days of the customer''s first valid order, by first-order cohort month. Revenue-based, since there is no cost data.'
+  - name: clv_90d
+    description: 'Clv 90d, a companion value of Historical customer lifetime value per cohort month: Mean net revenue (item price of delivered orders) per customer within 90, 180 and 365 days of the customer''s first valid order, by first-order cohort month. Revenue-based, since there is no cost data.'
+  - name: clv_180d
+    description: 'Clv 180d, a companion value of Historical customer lifetime value per cohort month: Mean net revenue (item price of delivered orders) per customer within 90, 180 and 365 days of the customer''s first valid order, by first-order cohort month. Revenue-based, since there is no cost data.'
+  - name: clv_365d
+    description: 'Clv 365d, a companion value of Historical customer lifetime value per cohort month: Mean net revenue (item price of delivered orders) per customer within 90, 180 and 365 days of the customer''s first valid order, by first-order cohort month. Revenue-based, since there is no cost data.'

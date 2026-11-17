@@ -4,16 +4,16 @@ KPIs from the catalogue that the approved design declines, and the data that wou
 
 ## conversion_rate
 
-Reason: No session or visit records exist; orders alone cannot supply the session denominator or attribute purchases to sessions.
+Reason: No sessions/visits data is present in the raw tables; KPI requires session-level data.
 
-- Missing data: Session identifier and session start timestamp, Purchase conversion flag or order-to-session attribution
-- Typical sources: Web or app analytics event exports, First-party session tracking
-- Next step: Load a session-grain dataset with session start time and a purchase conversion indicator, or events and order attribution sufficient to derive it.
+- Missing data: sessions table (session id, session_start timestamp, converted boolean)
+- Typical sources: web analytics (GA4 export), Snowplow, Segment or other event tracking capturing sessions/visits
+- Next step: Ingest session or event-level visit data including session_start and a converted flag or joinable purchase events so sessions can be counted and labelled as converted.
 
 ## gross_margin
 
-Reason: Item prices and freight are available, but no product unit cost or cost-of-goods-sold data is present. Sale price and freight are not substitutes for cost.
+Reason: No product cost or COGS data available to compute margin; KPI requires unit cost per product.
 
-- Missing data: Product-keyed unit cost in the sales currency
-- Typical sources: ERP product costing, Inventory valuation or purchasing system
-- Next step: Load product unit costs keyed by product_id, with currency and effective dates if costs vary; retain product_id from raw order items in silver and join the appropriate costs.
+- Missing data: product_costs table with product_id (or product_key) and unit_cost
+- Typical sources: ERP, PIM, procurement system, or accounting exports containing product unit costs
+- Next step: Load product-level cost data (product_id -> unit_cost) so cost of goods sold can be computed and joined to order lines.

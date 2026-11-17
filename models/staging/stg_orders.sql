@@ -1,8 +1,10 @@
 select
-    NULLIF(TRIM(order_id), '') as order_id,
-    NULLIF(TRIM(customer_id), '') as customer_id,
-    LOWER(NULLIF(TRIM(order_status), '')) as order_status,
-    CAST(NULLIF(TRIM(order_purchase_timestamp), '') AS timestamp) as purchased_at,
-    CAST(NULLIF(TRIM(order_delivered_customer_date), '') AS timestamp) as delivered_at,
-    CAST(NULLIF(TRIM(order_estimated_delivery_date), '') AS timestamp) as estimated_at
+    order_id as order_id,
+    customer_id as customer_id,
+    order_status as order_status,
+    order_purchase_timestamp::timestamp as order_purchase_timestamp,
+    order_approved_at::timestamp as order_approved_at,
+    order_delivered_carrier_date::timestamp as order_delivered_carrier_date,
+    order_delivered_customer_date::timestamp as order_delivered_customer_date,
+    order_estimated_delivery_date::timestamp as order_estimated_delivery_date
 from {{ source('raw', 'olist_orders_dataset') }}

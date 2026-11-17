@@ -1,19 +1,25 @@
-# governor: build bf5dc274
+# governor: build c07cf5d1
 
 ## Summary
 
-governor built this dbt project from the raw schema: 7 silver models, 8 KPIs and 2 gaps. Build thread `bf5dc274-8dad-4a62-9795-952dd2584fc4`, branch `governor/build-bf5dc274`.
+governor built this dbt project from the raw schema: 12 silver models, 8 KPIs and 2 gaps. Build thread `c07cf5d1-7061-4d85-8ce4-0382a6b79820`, branch `governor/build-c07cf5d1`.
 
-- Design approved by: **(not recorded)**
-- dbt tests passed: 18 (silver 11, gold 7)
+- Design approved by: **Amir Akhavan**
+- dbt tests passed: 28 (silver 21, gold 7)
 - SQL repairs: 0
+- Column descriptions: 100% (87 of 87 columns; review them in the yml files)
 
 ## Silver models
 
 - `stg_customers` (staging)
 - `stg_orders` (staging)
 - `stg_order_items` (staging)
-- `stg_reviews` (staging)
+- `stg_order_reviews` (staging)
+- `stg_order_payments` (staging)
+- `stg_products` (staging)
+- `stg_sellers` (staging)
+- `stg_product_category_name_translation` (staging)
+- `stg_geolocation` (staging)
 - `int_orders` (intermediate)
 - `int_order_lines` (intermediate)
 - `int_order_reviews` (intermediate)
@@ -33,18 +39,18 @@ governor built this dbt project from the raw schema: 7 silver models, 8 KPIs and
 
 ## Gap report
 
-- **conversion_rate**: No session or visit records exist; orders alone cannot supply the session denominator or attribute purchases to sessions.
-  - missing: Session identifier and session start timestamp, Purchase conversion flag or order-to-session attribution
-  - typical sources: Web or app analytics event exports, First-party session tracking
-  - next step: Load a session-grain dataset with session start time and a purchase conversion indicator, or events and order attribution sufficient to derive it.
-- **gross_margin**: Item prices and freight are available, but no product unit cost or cost-of-goods-sold data is present. Sale price and freight are not substitutes for cost.
-  - missing: Product-keyed unit cost in the sales currency
-  - typical sources: ERP product costing, Inventory valuation or purchasing system
-  - next step: Load product unit costs keyed by product_id, with currency and effective dates if costs vary; retain product_id from raw order items in silver and join the appropriate costs.
+- **conversion_rate**: No sessions/visits data is present in the raw tables; KPI requires session-level data.
+  - missing: sessions table (session id, session_start timestamp, converted boolean)
+  - typical sources: web analytics (GA4 export), Snowplow, Segment or other event tracking capturing sessions/visits
+  - next step: Ingest session or event-level visit data including session_start and a converted flag or joinable purchase events so sessions can be counted and labelled as converted.
+- **gross_margin**: No product cost or COGS data available to compute margin; KPI requires unit cost per product.
+  - missing: product_costs table with product_id (or product_key) and unit_cost
+  - typical sources: ERP, PIM, procurement system, or accounting exports containing product unit costs
+  - next step: Load product-level cost data (product_id -> unit_cost) so cost of goods sold can be computed and joined to order lines.
 
 ## Tests
 
-dbt build ran every test in the dev schema: 18 passed (11 silver, 7 gold).
+dbt build ran every test in the dev schema: 28 passed (21 silver, 7 gold).
 
 ## Blueprint findings
 
@@ -52,9 +58,8 @@ No findings.
 
 ## Model cost
 
-4 model calls, cost $0.0480.
-- `openai/gpt-6.1-sol`: 1 calls, 6611 in / 2512 out tokens, $0.0416
-- `openai/gpt-5-mini`: 3 calls, 1759 in / 2983 out tokens, $0.0064
+4 model calls, cost $0.0292.
+- `openai/gpt-5-mini`: 4 calls, 14218 in / 12812 out tokens, $0.0292
 
 ## Reviewer checklist
 

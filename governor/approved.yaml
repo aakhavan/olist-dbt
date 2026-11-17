@@ -7,294 +7,294 @@ decisions:
   subject: kpi.gmv.order_lines
   value: int_order_lines
   reason: 'approved design for gmv (sales): order_lines -> int_order_lines'
-  approved_by: amir
-  approved_on: &id001 2026-11-05
-  source: governor/design.json (build thread bf5dc274-8dad-4a62-9795-952dd2584fc4)
+  approved_by: Amir Akhavan
+  approved_on: &id001 2026-11-17
+  source: governor/design.json (build thread c07cf5d1-7061-4d85-8ce4-0382a6b79820)
 - id: map-gmv-purchased_at
   kind: column_mapping
   subject: kpi.gmv.purchased_at
   value: purchased_at
   reason: 'approved design for gmv (sales): purchased_at -> purchased_at'
-  approved_by: amir
+  approved_by: Amir Akhavan
   approved_on: *id001
-  source: governor/design.json (build thread bf5dc274-8dad-4a62-9795-952dd2584fc4)
+  source: governor/design.json (build thread c07cf5d1-7061-4d85-8ce4-0382a6b79820)
 - id: map-gmv-item_price
   kind: column_mapping
   subject: kpi.gmv.item_price
   value: item_price
   reason: 'approved design for gmv (sales): item_price -> item_price'
-  approved_by: amir
+  approved_by: Amir Akhavan
   approved_on: *id001
-  source: governor/design.json (build thread bf5dc274-8dad-4a62-9795-952dd2584fc4)
+  source: governor/design.json (build thread c07cf5d1-7061-4d85-8ce4-0382a6b79820)
 - id: map-gmv-freight
   kind: column_mapping
   subject: kpi.gmv.freight
   value: freight
   reason: 'approved design for gmv (sales): freight -> freight'
-  approved_by: amir
+  approved_by: Amir Akhavan
   approved_on: *id001
-  source: governor/design.json (build thread bf5dc274-8dad-4a62-9795-952dd2584fc4)
+  source: governor/design.json (build thread c07cf5d1-7061-4d85-8ce4-0382a6b79820)
 - id: map-gmv-valid_order
   kind: column_mapping
   subject: kpi.gmv.valid_order
   value: order_status NOT IN ('canceled', 'unavailable')
   reason: 'approved design for gmv (sales): valid_order -> order_status NOT IN (''canceled'',
     ''unavailable'')'
-  approved_by: amir
+  approved_by: Amir Akhavan
   approved_on: *id001
-  source: governor/design.json (build thread bf5dc274-8dad-4a62-9795-952dd2584fc4)
+  source: governor/design.json (build thread c07cf5d1-7061-4d85-8ce4-0382a6b79820)
 - id: map-net_revenue-order_lines
   kind: column_mapping
   subject: kpi.net_revenue.order_lines
   value: int_order_lines
   reason: 'approved design for net_revenue (sales): order_lines -> int_order_lines'
-  approved_by: amir
+  approved_by: Amir Akhavan
   approved_on: *id001
-  source: governor/design.json (build thread bf5dc274-8dad-4a62-9795-952dd2584fc4)
+  source: governor/design.json (build thread c07cf5d1-7061-4d85-8ce4-0382a6b79820)
 - id: map-net_revenue-purchased_at
   kind: column_mapping
   subject: kpi.net_revenue.purchased_at
   value: purchased_at
   reason: 'approved design for net_revenue (sales): purchased_at -> purchased_at'
-  approved_by: amir
+  approved_by: Amir Akhavan
   approved_on: *id001
-  source: governor/design.json (build thread bf5dc274-8dad-4a62-9795-952dd2584fc4)
+  source: governor/design.json (build thread c07cf5d1-7061-4d85-8ce4-0382a6b79820)
 - id: map-net_revenue-item_price
   kind: column_mapping
   subject: kpi.net_revenue.item_price
   value: item_price
   reason: 'approved design for net_revenue (sales): item_price -> item_price'
-  approved_by: amir
+  approved_by: Amir Akhavan
   approved_on: *id001
-  source: governor/design.json (build thread bf5dc274-8dad-4a62-9795-952dd2584fc4)
+  source: governor/design.json (build thread c07cf5d1-7061-4d85-8ce4-0382a6b79820)
 - id: map-net_revenue-delivered_order
   kind: column_mapping
   subject: kpi.net_revenue.delivered_order
   value: order_status = 'delivered'
   reason: 'approved design for net_revenue (sales): delivered_order -> order_status
     = ''delivered'''
-  approved_by: amir
+  approved_by: Amir Akhavan
   approved_on: *id001
-  source: governor/design.json (build thread bf5dc274-8dad-4a62-9795-952dd2584fc4)
+  source: governor/design.json (build thread c07cf5d1-7061-4d85-8ce4-0382a6b79820)
 - id: map-aov-order_lines
   kind: column_mapping
   subject: kpi.aov.order_lines
   value: int_order_lines
   reason: 'approved design for aov (sales): order_lines -> int_order_lines'
-  approved_by: amir
+  approved_by: Amir Akhavan
   approved_on: *id001
-  source: governor/design.json (build thread bf5dc274-8dad-4a62-9795-952dd2584fc4)
+  source: governor/design.json (build thread c07cf5d1-7061-4d85-8ce4-0382a6b79820)
 - id: map-aov-order_id
   kind: column_mapping
   subject: kpi.aov.order_id
   value: order_id
   reason: 'approved design for aov (sales): order_id -> order_id'
-  approved_by: amir
+  approved_by: Amir Akhavan
   approved_on: *id001
-  source: governor/design.json (build thread bf5dc274-8dad-4a62-9795-952dd2584fc4)
+  source: governor/design.json (build thread c07cf5d1-7061-4d85-8ce4-0382a6b79820)
 - id: map-aov-purchased_at
   kind: column_mapping
   subject: kpi.aov.purchased_at
   value: purchased_at
   reason: 'approved design for aov (sales): purchased_at -> purchased_at'
-  approved_by: amir
+  approved_by: Amir Akhavan
   approved_on: *id001
-  source: governor/design.json (build thread bf5dc274-8dad-4a62-9795-952dd2584fc4)
+  source: governor/design.json (build thread c07cf5d1-7061-4d85-8ce4-0382a6b79820)
 - id: map-aov-item_price
   kind: column_mapping
   subject: kpi.aov.item_price
   value: item_price
   reason: 'approved design for aov (sales): item_price -> item_price'
-  approved_by: amir
+  approved_by: Amir Akhavan
   approved_on: *id001
-  source: governor/design.json (build thread bf5dc274-8dad-4a62-9795-952dd2584fc4)
+  source: governor/design.json (build thread c07cf5d1-7061-4d85-8ce4-0382a6b79820)
 - id: map-aov-valid_order
   kind: column_mapping
   subject: kpi.aov.valid_order
   value: order_status NOT IN ('canceled', 'unavailable')
   reason: 'approved design for aov (sales): valid_order -> order_status NOT IN (''canceled'',
     ''unavailable'')'
-  approved_by: amir
+  approved_by: Amir Akhavan
   approved_on: *id001
-  source: governor/design.json (build thread bf5dc274-8dad-4a62-9795-952dd2584fc4)
+  source: governor/design.json (build thread c07cf5d1-7061-4d85-8ce4-0382a6b79820)
 - id: map-on_time_delivery_rate-orders
   kind: column_mapping
   subject: kpi.on_time_delivery_rate.orders
   value: int_orders
   reason: 'approved design for on_time_delivery_rate (delivery): orders -> int_orders'
-  approved_by: amir
+  approved_by: Amir Akhavan
   approved_on: *id001
-  source: governor/design.json (build thread bf5dc274-8dad-4a62-9795-952dd2584fc4)
+  source: governor/design.json (build thread c07cf5d1-7061-4d85-8ce4-0382a6b79820)
 - id: map-on_time_delivery_rate-purchased_at
   kind: column_mapping
   subject: kpi.on_time_delivery_rate.purchased_at
   value: purchased_at
   reason: 'approved design for on_time_delivery_rate (delivery): purchased_at -> purchased_at'
-  approved_by: amir
+  approved_by: Amir Akhavan
   approved_on: *id001
-  source: governor/design.json (build thread bf5dc274-8dad-4a62-9795-952dd2584fc4)
+  source: governor/design.json (build thread c07cf5d1-7061-4d85-8ce4-0382a6b79820)
 - id: map-on_time_delivery_rate-delivered_at
   kind: column_mapping
   subject: kpi.on_time_delivery_rate.delivered_at
   value: delivered_at
   reason: 'approved design for on_time_delivery_rate (delivery): delivered_at -> delivered_at'
-  approved_by: amir
+  approved_by: Amir Akhavan
   approved_on: *id001
-  source: governor/design.json (build thread bf5dc274-8dad-4a62-9795-952dd2584fc4)
+  source: governor/design.json (build thread c07cf5d1-7061-4d85-8ce4-0382a6b79820)
 - id: map-on_time_delivery_rate-estimated_at
   kind: column_mapping
   subject: kpi.on_time_delivery_rate.estimated_at
   value: estimated_at
   reason: 'approved design for on_time_delivery_rate (delivery): estimated_at -> estimated_at'
-  approved_by: amir
+  approved_by: Amir Akhavan
   approved_on: *id001
-  source: governor/design.json (build thread bf5dc274-8dad-4a62-9795-952dd2584fc4)
+  source: governor/design.json (build thread c07cf5d1-7061-4d85-8ce4-0382a6b79820)
 - id: map-on_time_delivery_rate-delivered_order
   kind: column_mapping
   subject: kpi.on_time_delivery_rate.delivered_order
   value: order_status = 'delivered'
   reason: 'approved design for on_time_delivery_rate (delivery): delivered_order ->
     order_status = ''delivered'''
-  approved_by: amir
+  approved_by: Amir Akhavan
   approved_on: *id001
-  source: governor/design.json (build thread bf5dc274-8dad-4a62-9795-952dd2584fc4)
+  source: governor/design.json (build thread c07cf5d1-7061-4d85-8ce4-0382a6b79820)
 - id: map-avg_review_score-order_reviews
   kind: column_mapping
   subject: kpi.avg_review_score.order_reviews
   value: int_order_reviews
   reason: 'approved design for avg_review_score (customers): order_reviews -> int_order_reviews'
-  approved_by: amir
+  approved_by: Amir Akhavan
   approved_on: *id001
-  source: governor/design.json (build thread bf5dc274-8dad-4a62-9795-952dd2584fc4)
+  source: governor/design.json (build thread c07cf5d1-7061-4d85-8ce4-0382a6b79820)
 - id: map-avg_review_score-purchased_at
   kind: column_mapping
   subject: kpi.avg_review_score.purchased_at
   value: purchased_at
   reason: 'approved design for avg_review_score (customers): purchased_at -> purchased_at'
-  approved_by: amir
+  approved_by: Amir Akhavan
   approved_on: *id001
-  source: governor/design.json (build thread bf5dc274-8dad-4a62-9795-952dd2584fc4)
+  source: governor/design.json (build thread c07cf5d1-7061-4d85-8ce4-0382a6b79820)
 - id: map-avg_review_score-review_score
   kind: column_mapping
   subject: kpi.avg_review_score.review_score
   value: review_score
   reason: 'approved design for avg_review_score (customers): review_score -> review_score'
-  approved_by: amir
+  approved_by: Amir Akhavan
   approved_on: *id001
-  source: governor/design.json (build thread bf5dc274-8dad-4a62-9795-952dd2584fc4)
+  source: governor/design.json (build thread c07cf5d1-7061-4d85-8ce4-0382a6b79820)
 - id: map-repeat_purchase_rate-orders
   kind: column_mapping
   subject: kpi.repeat_purchase_rate.orders
   value: int_orders
   reason: 'approved design for repeat_purchase_rate (customers): orders -> int_orders'
-  approved_by: amir
+  approved_by: Amir Akhavan
   approved_on: *id001
-  source: governor/design.json (build thread bf5dc274-8dad-4a62-9795-952dd2584fc4)
+  source: governor/design.json (build thread c07cf5d1-7061-4d85-8ce4-0382a6b79820)
 - id: map-repeat_purchase_rate-order_id
   kind: column_mapping
   subject: kpi.repeat_purchase_rate.order_id
   value: order_id
   reason: 'approved design for repeat_purchase_rate (customers): order_id -> order_id'
-  approved_by: amir
+  approved_by: Amir Akhavan
   approved_on: *id001
-  source: governor/design.json (build thread bf5dc274-8dad-4a62-9795-952dd2584fc4)
+  source: governor/design.json (build thread c07cf5d1-7061-4d85-8ce4-0382a6b79820)
 - id: map-repeat_purchase_rate-customer_key
   kind: column_mapping
   subject: kpi.repeat_purchase_rate.customer_key
   value: customer_key
   reason: 'approved design for repeat_purchase_rate (customers): customer_key -> customer_key'
-  approved_by: amir
+  approved_by: Amir Akhavan
   approved_on: *id001
-  source: governor/design.json (build thread bf5dc274-8dad-4a62-9795-952dd2584fc4)
+  source: governor/design.json (build thread c07cf5d1-7061-4d85-8ce4-0382a6b79820)
 - id: map-repeat_purchase_rate-valid_order
   kind: column_mapping
   subject: kpi.repeat_purchase_rate.valid_order
   value: order_status NOT IN ('canceled', 'unavailable')
   reason: 'approved design for repeat_purchase_rate (customers): valid_order -> order_status
     NOT IN (''canceled'', ''unavailable'')'
-  approved_by: amir
+  approved_by: Amir Akhavan
   approved_on: *id001
-  source: governor/design.json (build thread bf5dc274-8dad-4a62-9795-952dd2584fc4)
+  source: governor/design.json (build thread c07cf5d1-7061-4d85-8ce4-0382a6b79820)
 - id: map-cohort_retention-orders
   kind: column_mapping
   subject: kpi.cohort_retention.orders
   value: int_orders
   reason: 'approved design for cohort_retention (customers): orders -> int_orders'
-  approved_by: amir
+  approved_by: Amir Akhavan
   approved_on: *id001
-  source: governor/design.json (build thread bf5dc274-8dad-4a62-9795-952dd2584fc4)
+  source: governor/design.json (build thread c07cf5d1-7061-4d85-8ce4-0382a6b79820)
 - id: map-cohort_retention-customer_key
   kind: column_mapping
   subject: kpi.cohort_retention.customer_key
   value: customer_key
   reason: 'approved design for cohort_retention (customers): customer_key -> customer_key'
-  approved_by: amir
+  approved_by: Amir Akhavan
   approved_on: *id001
-  source: governor/design.json (build thread bf5dc274-8dad-4a62-9795-952dd2584fc4)
+  source: governor/design.json (build thread c07cf5d1-7061-4d85-8ce4-0382a6b79820)
 - id: map-cohort_retention-purchased_at
   kind: column_mapping
   subject: kpi.cohort_retention.purchased_at
   value: purchased_at
   reason: 'approved design for cohort_retention (customers): purchased_at -> purchased_at'
-  approved_by: amir
+  approved_by: Amir Akhavan
   approved_on: *id001
-  source: governor/design.json (build thread bf5dc274-8dad-4a62-9795-952dd2584fc4)
+  source: governor/design.json (build thread c07cf5d1-7061-4d85-8ce4-0382a6b79820)
 - id: map-cohort_retention-valid_order
   kind: column_mapping
   subject: kpi.cohort_retention.valid_order
   value: order_status NOT IN ('canceled', 'unavailable')
   reason: 'approved design for cohort_retention (customers): valid_order -> order_status
     NOT IN (''canceled'', ''unavailable'')'
-  approved_by: amir
+  approved_by: Amir Akhavan
   approved_on: *id001
-  source: governor/design.json (build thread bf5dc274-8dad-4a62-9795-952dd2584fc4)
+  source: governor/design.json (build thread c07cf5d1-7061-4d85-8ce4-0382a6b79820)
 - id: map-historical_clv-order_lines
   kind: column_mapping
   subject: kpi.historical_clv.order_lines
   value: int_order_lines
   reason: 'approved design for historical_clv (customers): order_lines -> int_order_lines'
-  approved_by: amir
+  approved_by: Amir Akhavan
   approved_on: *id001
-  source: governor/design.json (build thread bf5dc274-8dad-4a62-9795-952dd2584fc4)
+  source: governor/design.json (build thread c07cf5d1-7061-4d85-8ce4-0382a6b79820)
 - id: map-historical_clv-customer_key
   kind: column_mapping
   subject: kpi.historical_clv.customer_key
   value: customer_key
   reason: 'approved design for historical_clv (customers): customer_key -> customer_key'
-  approved_by: amir
+  approved_by: Amir Akhavan
   approved_on: *id001
-  source: governor/design.json (build thread bf5dc274-8dad-4a62-9795-952dd2584fc4)
+  source: governor/design.json (build thread c07cf5d1-7061-4d85-8ce4-0382a6b79820)
 - id: map-historical_clv-purchased_at
   kind: column_mapping
   subject: kpi.historical_clv.purchased_at
   value: purchased_at
   reason: 'approved design for historical_clv (customers): purchased_at -> purchased_at'
-  approved_by: amir
+  approved_by: Amir Akhavan
   approved_on: *id001
-  source: governor/design.json (build thread bf5dc274-8dad-4a62-9795-952dd2584fc4)
+  source: governor/design.json (build thread c07cf5d1-7061-4d85-8ce4-0382a6b79820)
 - id: map-historical_clv-item_price
   kind: column_mapping
   subject: kpi.historical_clv.item_price
   value: item_price
   reason: 'approved design for historical_clv (customers): item_price -> item_price'
-  approved_by: amir
+  approved_by: Amir Akhavan
   approved_on: *id001
-  source: governor/design.json (build thread bf5dc274-8dad-4a62-9795-952dd2584fc4)
+  source: governor/design.json (build thread c07cf5d1-7061-4d85-8ce4-0382a6b79820)
 - id: map-historical_clv-valid_order
   kind: column_mapping
   subject: kpi.historical_clv.valid_order
   value: order_status NOT IN ('canceled', 'unavailable')
   reason: 'approved design for historical_clv (customers): valid_order -> order_status
     NOT IN (''canceled'', ''unavailable'')'
-  approved_by: amir
+  approved_by: Amir Akhavan
   approved_on: *id001
-  source: governor/design.json (build thread bf5dc274-8dad-4a62-9795-952dd2584fc4)
+  source: governor/design.json (build thread c07cf5d1-7061-4d85-8ce4-0382a6b79820)
 - id: map-historical_clv-delivered_order
   kind: column_mapping
   subject: kpi.historical_clv.delivered_order
   value: order_status = 'delivered'
   reason: 'approved design for historical_clv (customers): delivered_order -> order_status
     = ''delivered'''
-  approved_by: amir
+  approved_by: Amir Akhavan
   approved_on: *id001
-  source: governor/design.json (build thread bf5dc274-8dad-4a62-9795-952dd2584fc4)
+  source: governor/design.json (build thread c07cf5d1-7061-4d85-8ce4-0382a6b79820)

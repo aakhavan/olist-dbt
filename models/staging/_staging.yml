@@ -1,55 +1,88 @@
 version: 2
 models:
 - name: stg_customers
-  description: One row per per-order customer_id; retain the person-level identity
-    for customer analytics. Test primary key unique and not null.
+  description: Staging for raw customers. Cast and pass through customer identifiers
+    and location. One row per raw customer_id.
   config:
     meta:
       primary_key:
       - customer_id
   columns:
   - name: customer_id
-    description: ''
+    description: Raw per-order customer id (per-order PK from source). Text from raw.olist_customers_dataset.customer_id,
+      copied as is; primary key; never null; personal data, hashed for analysts.
     config:
       meta:
         pii: true
     data_tests:
     - unique
     - not_null
-  - name: customer_key
-    description: ''
+  - name: customer_unique_id
+    description: Person-level customer key (stable across orders). Text from raw.olist_customers_dataset.customer_unique_id,
+      copied as is; never null; personal data, hashed for analysts.
+    config:
+      meta:
+        pii: true
+  - name: customer_zip_code_prefix
+    description: Customer zip code prefix. Text from raw.olist_customers_dataset.customer_zip_code_prefix,
+      copied as is; never null; personal data, hashed for analysts.
+    config:
+      meta:
+        pii: true
+  - name: customer_city
+    description: Customer city. Text from raw.olist_customers_dataset.customer_city,
+      copied as is; never null; personal data, hashed for analysts.
+    config:
+      meta:
+        pii: true
+  - name: customer_state
+    description: Customer state. Text from raw.olist_customers_dataset.customer_state,
+      copied as is; never null; personal data, hashed for analysts.
     config:
       meta:
         pii: true
 - name: stg_orders
-  description: One row per order, without status filtering. Test primary key unique
-    and not null.
+  description: Staging for raw orders. Typed timestamp fields and order status. One
+    row per raw order_id.
   config:
     meta:
       primary_key:
       - order_id
   columns:
   - name: order_id
-    description: ''
+    description: Order identifier. Text from raw.olist_orders_dataset.order_id, copied
+      as is; primary key; never null.
     data_tests:
     - unique
     - not_null
   - name: customer_id
-    description: ''
+    description: Per-order customer id (foreign key to customers). Text from raw.olist_orders_dataset.customer_id,
+      copied as is; never null; personal data, hashed for analysts.
     config:
       meta:
         pii: true
   - name: order_status
-    description: ''
-  - name: purchased_at
-    description: ''
-  - name: delivered_at
-    description: ''
-  - name: estimated_at
-    description: ''
+    description: Order lifecycle status (e.g. delivered, canceled, unavailable). Text
+      from raw.olist_orders_dataset.order_status, copied as is; never null.
+  - name: order_purchase_timestamp
+    description: When the order was placed (purchase time). Timestamp from raw.olist_orders_dataset.order_purchase_timestamp,
+      cast from text to timestamp; never null.
+  - name: order_approved_at
+    description: When the order was approved. Timestamp from raw.olist_orders_dataset.order_approved_at,
+      cast from text to timestamp; never null.
+  - name: order_delivered_carrier_date
+    description: When the carrier took responsibility for delivery. Timestamp from
+      raw.olist_orders_dataset.order_delivered_carrier_date, cast from text to timestamp;
+      often null (10 to 50%).
+  - name: order_delivered_customer_date
+    description: When the order was delivered to the customer (customer-facing delivered
+      date). Timestamp from raw.olist_orders_dataset.order_delivered_customer_date,
+      cast from text to timestamp; often null (10 to 50%).
+  - name: order_estimated_delivery_date
+    description: Estimated delivery date. Timestamp from raw.olist_orders_dataset.order_estimated_delivery_date,
+      cast from text to timestamp; never null.
 - name: stg_order_items
-  description: One row per original order item; retain all items without aggregation.
-    Test the composite primary key unique and each component not null.
+  description: Staging for order items. One row per raw order item (order_id, order_item_id).
   config:
     meta:
       primary_key:
@@ -57,27 +90,169 @@ models:
       - order_item_id
   columns:
   - name: order_id
-    description: ''
+    description: Order id FK to orders. Text from raw.olist_order_items_dataset.order_id,
+      copied as is; part of the primary key (order_id, order_item_id); never null.
   - name: order_item_id
-    description: ''
-  - name: item_price
-    description: ''
-  - name: freight
-    description: ''
-- name: stg_reviews
-  description: One row per (review_id, order_id), preserving all original reviews;
-    omit free-text PII. Test composite primary key unique and each component not null.
+    description: Order item sequence id within an order. Integer from raw.olist_order_items_dataset.order_item_id,
+      cast from text to integer; part of the primary key (order_id, order_item_id);
+      never null.
+  - name: product_id
+    description: Product identifier. Text from raw.olist_order_items_dataset.product_id,
+      copied as is; never null.
+  - name: seller_id
+    description: Seller identifier for the item. Text from raw.olist_order_items_dataset.seller_id,
+      copied as is; never null.
+  - name: shipping_limit_date
+    description: Shipping limit date from source. Timestamp from raw.olist_order_items_dataset.shipping_limit_date,
+      cast from text to timestamp; never null.
+  - name: price
+    description: Item price (monetary). Numeric from raw.olist_order_items_dataset.price,
+      cast from text to numeric; never null.
+  - name: freight_value
+    description: Freight charged for this item. Numeric from raw.olist_order_items_dataset.freight_value,
+      cast from text to numeric; never null.
+- name: stg_order_reviews
+  description: Staging for order reviews. Raw one row per review_id.
   config:
     meta:
       primary_key:
       - review_id
-      - order_id
   columns:
   - name: review_id
-    description: ''
+    description: Review identifier. Text from raw.olist_order_reviews_dataset.review_id,
+      copied as is; primary key; never null.
+    data_tests:
+    - unique
+    - not_null
   - name: order_id
-    description: ''
+    description: Order id this review refers to. Text from raw.olist_order_reviews_dataset.order_id,
+      copied as is; never null.
   - name: review_score
-    description: ''
-  - name: answered_at
-    description: ''
+    description: Review score (integer). Integer from raw.olist_order_reviews_dataset.review_score,
+      cast from text to integer; never null.
+  - name: review_creation_date
+    description: When the review was created. Timestamp from raw.olist_order_reviews_dataset.review_creation_date,
+      cast from text to timestamp; never null.
+  - name: review_answer_timestamp
+    description: When the review was answered/recorded; used to pick the latest review
+      per order. Timestamp from raw.olist_order_reviews_dataset.review_answer_timestamp,
+      cast from text to timestamp; never null.
+- name: stg_order_payments
+  description: Staging for payments; preserved for completeness. One row per payment
+    event for an order.
+  config:
+    meta:
+      primary_key:
+      - order_id
+      - payment_sequential
+  columns:
+  - name: order_id
+    description: Order id. Text from raw.olist_order_payments_dataset.order_id, copied
+      as is; part of the primary key (order_id, payment_sequential); never null.
+  - name: payment_sequential
+    description: Payment sequence id. Integer from raw.olist_order_payments_dataset.payment_sequential,
+      cast from text to integer; part of the primary key (order_id, payment_sequential);
+      never null.
+  - name: payment_type
+    description: Payment method type. Text from raw.olist_order_payments_dataset.payment_type,
+      copied as is; never null.
+  - name: payment_installments
+    description: Installments count. Integer from raw.olist_order_payments_dataset.payment_installments,
+      cast from text to integer; never null.
+  - name: payment_value
+    description: Payment monetary value. Numeric from raw.olist_order_payments_dataset.payment_value,
+      cast from text to numeric; never null.
+- name: stg_products
+  description: Staging for products. One row per product_id.
+  config:
+    meta:
+      primary_key:
+      - product_id
+  columns:
+  - name: product_id
+    description: Product id. Text from raw.olist_products_dataset.product_id, copied
+      as is; primary key; never null.
+    data_tests:
+    - unique
+    - not_null
+  - name: product_category_name
+    description: Category name in source language. Text from raw.olist_products_dataset.product_category_name,
+      copied as is; often null (10 to 50%).
+  - name: product_weight_g
+    description: Product weight in grams. Integer from raw.olist_products_dataset.product_weight_g,
+      cast from text to integer; never null.
+- name: stg_sellers
+  description: Staging for sellers. One row per seller_id.
+  config:
+    meta:
+      primary_key:
+      - seller_id
+  columns:
+  - name: seller_id
+    description: Seller identifier. Text from raw.olist_sellers_dataset.seller_id,
+      copied as is; primary key; never null.
+    data_tests:
+    - unique
+    - not_null
+  - name: seller_zip_code_prefix
+    description: Seller zip code prefix. Text from raw.olist_sellers_dataset.seller_zip_code_prefix,
+      copied as is; never null; personal data, hashed for analysts.
+    config:
+      meta:
+        pii: true
+  - name: seller_city
+    description: Seller city. Text from raw.olist_sellers_dataset.seller_city, copied
+      as is; never null; personal data, hashed for analysts.
+    config:
+      meta:
+        pii: true
+  - name: seller_state
+    description: Seller state. Text from raw.olist_sellers_dataset.seller_state, copied
+      as is; never null.
+- name: stg_product_category_name_translation
+  description: Staging for product category translations.
+  config:
+    meta:
+      primary_key:
+      - product_category_name
+  columns:
+  - name: product_category_name
+    description: Category name in source language. Text from raw.product_category_name_translation.product_category_name,
+      copied as is; primary key; never null.
+    data_tests:
+    - unique
+    - not_null
+  - name: product_category_name_english
+    description: Category name translated to English. Text from raw.product_category_name_translation.product_category_name_english,
+      copied as is; never null.
+- name: stg_geolocation
+  description: Staging for geolocation entries. Kept for completeness.
+  config:
+    meta:
+      primary_key:
+      - geolocation_zip_code_prefix
+  columns:
+  - name: geolocation_zip_code_prefix
+    description: Zip code prefix for geolocation row. Text from raw.olist_geolocation_dataset.geolocation_zip_code_prefix,
+      copied as is; primary key; never null.
+    data_tests:
+    - unique
+    - not_null
+  - name: geolocation_lat
+    description: Latitude as text in source. Text from raw.olist_geolocation_dataset.geolocation_lat,
+      copied as is; never null; personal data, hashed for analysts.
+    config:
+      meta:
+        pii: true
+  - name: geolocation_lng
+    description: Longitude as text in source. Text from raw.olist_geolocation_dataset.geolocation_lng,
+      copied as is; never null; personal data, hashed for analysts.
+    config:
+      meta:
+        pii: true
+  - name: geolocation_city
+    description: City for geolocation. Text from raw.olist_geolocation_dataset.geolocation_city,
+      copied as is; never null.
+  - name: geolocation_state
+    description: State for geolocation. Text from raw.olist_geolocation_dataset.geolocation_state,
+      copied as is; never null.
